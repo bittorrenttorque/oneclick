@@ -14,7 +14,14 @@
 <script type="text/javascript" src="javascripts/jstorage.min.js"></script>
 <script>
 var btapp = new Btapp;
-btapp.connect();
+btapp.connect({
+    queries: [
+        'btapp/torrent/all/*/properties/all/download_url/',
+        'btapp/torrent/all/*/properties/all/hash/',
+        'btapp/torrent/all/*/file/all/*/properties/all/streaming_url/',
+        'btapp/add/'
+    ]
+});
 
 var torrents = {};
 
@@ -33,17 +40,19 @@ btapp.live('torrent * properties', function(properties) {
 });
 
 chrome.webRequest.onBeforeRequest.addListener(
-    function(details) { 
+    function(details) {
         console.log('onBeforeRequest');
-        btapp.get('add').torrent(details.url);
-        torrents[details.url] = true;
-
+        console.log(details.url);
+        if(btapp.has('add')) {
+            btapp.get('add').torrent(details.url);
+            torrents[details.url] = true;
+        }
         return {
             redirectUrl: details.url
         }; 
     },
     {
-        urls: ["*://*/*.torrent*"]
+        urls: ["*://*/*.torrent"]
     },  
     ["blocking"]
 );
