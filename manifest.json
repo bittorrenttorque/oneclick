@@ -1,0 +1,13 @@
+{
+   "background_page": "background.html",
+   "description": "Open online zip and rar archive files with Google Docs Viewer",
+   "icons": {
+      "128": "icon.png"
+   },
+   "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDNex8PKIwA+yzwV6WHQcrnkF+ybb5h8V7vnoQM1gui5JkmoC86vAypwqjzKVs9C5tI6X601txkF/WT33KwL584Kqg5V0rkCQByMjH/F2tGriRY2acZ6dH2ATl33WCjLh8vsXSCidCcPrNCYWLckMoVcOduPqiCz8joOt/C+RloawIDAQAB",
+   "minimum_chrome_version": "6.0.472.41",
+   "name": "Open ZIP and RAR With GDocs",
+   "permissions": [ "contextMenus", "tabs", "webRequest", "webRequestBlocking", "http://*/*"],
+   "update_url": "http://clients2.google.com/service/update2/crx",
+   "version": "0.1"
+}
