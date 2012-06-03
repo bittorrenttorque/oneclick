@@ -32,7 +32,7 @@ function download_torrent_files(properties) {
     if(torrents[url]) {
         delete torrents[url];
         var files = btapp.get('torrent').get(properties.get('hash')).get('file');
-        if(files.length > 3) {
+        if(files.length > 8) {
             alert('Your tab situation is about to get super fucked up by all the files in this big ass torrent. Continue? .... jk. Its too late. That shit got locked down. Figure out what to do with the torrent yourself.');
             return;
         }
@@ -81,7 +81,7 @@ chrome.webRequest.onHeadersReceived.addListener(
             if(!disposition) {
                 details.responseHeaders.push({
                     name: 'Content-Disposition',
-                    value: 'inline; filename="' + streaming_urls[details.url] + '"'
+                    value: 'attachment; filename="' + streaming_urls[details.url] + '"'
                 });
             }
             for(var i = 0; i < details.responseHeaders.length; i++) {

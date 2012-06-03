@@ -7,7 +7,7 @@
    "minimum_chrome_version": "19.0.1057.0",
    "name": "OneClick - Torrent Easier",
    "permissions": ["plugins", "webRequest", "webRequestBlocking", "http://*/*"],
-   "update_url": "http://torque.bittorrent.com/oneclick/updates.xml",
+   "update_url": "http://torque.bittorrent.com/oneclick/oneclick.xml",
    "version": "0.1",
    "plugins": [
       /**
