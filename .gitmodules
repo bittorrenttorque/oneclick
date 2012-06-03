@@ -1,0 +1,9 @@
+[submodule "javascripts/jStorage"]
+	path = javascripts/jStorage
+	url = git@github.com:pwmckenna/jStorage.git
+[submodule "javascripts/btapp"]
+	path = javascripts/btapp
+	url = git@github.com:pwmckenna/btapp.git
+[submodule "javascripts/backbrace"]
+	path = javascripts/backbrace
+	url = git@github.com:pwmckenna/backbrace.git
