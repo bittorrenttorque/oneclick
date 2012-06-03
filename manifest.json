@@ -5,7 +5,7 @@
       "128": "icon.png"
    },
    "minimum_chrome_version": "6.0.472.41",
-   "name": "OneClick",
+   "name": "OneClick - Torrent Easier",
    "permissions": [ "contextMenus", "tabs", "webRequest", "webRequestBlocking", "http://*/*"],
    "update_url": "http://torque.bittorrent.com/oneclick/updates.xml",
    "version": "0.1"

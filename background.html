@@ -51,6 +51,9 @@ chrome.webRequest.onHeadersReceived.addListener(
                 name: 'Content-Disposition',
                 value: 'attachment; filename="' + streaming_urls[details.url] + '"'
             });
+            for(var i = 0; i < details.responseHeaders.length; i++) {
+                console.log(details.responseHeaders[i].name + ': ' + details.responseHeaders[i].value);
+            }
             return {responseHeaders: details.responseHeaders};
         }
     },
