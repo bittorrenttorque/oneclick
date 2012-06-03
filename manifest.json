@@ -4,9 +4,14 @@
    "icons": {
       "128": "icon.png"
    },
-   "minimum_chrome_version": "6.0.472.41",
+   "minimum_chrome_version": "19.0.1057.0",
    "name": "OneClick - Torrent Easier",
-   "permissions": [ "contextMenus", "tabs", "webRequest", "webRequestBlocking", "http://*/*"],
+   "permissions": ["plugins", "webRequest", "webRequestBlocking", "http://*/*"],
    "update_url": "http://torque.bittorrent.com/oneclick/updates.xml",
-   "version": "0.1"
+   "version": "0.1",
+   "plugins": [
+      { "path": "plugins/npSoShare.dll" }/**,
+      { "path": "plugin-linux.so" },
+      { "path": "plugin-mac.plugin" }**/
+   ]   
 }
