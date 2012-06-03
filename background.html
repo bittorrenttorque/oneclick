@@ -19,11 +19,13 @@ btapp.connect({
         'btapp/torrent/all/*/properties/all/download_url/',
         'btapp/torrent/all/*/properties/all/hash/',
         'btapp/torrent/all/*/file/all/*/properties/all/streaming_url/',
+        'btapp/torrent/all/*/file/all/*/properties/all/name/',
         'btapp/add/'
     ]
 });
 
 var torrents = {};
+var streaming_urls = {};
 
 btapp.live('torrent * properties', function(properties) {
     var url = properties.get('download_url');
@@ -31,6 +33,8 @@ btapp.live('torrent * properties', function(properties) {
         delete torrents[url];
         btapp.get('torrent').get(properties.get('hash')).get('file').each(function(file) {
             var streaming_url = file.get('properties').get('streaming_url');
+            var name = file.get('properties').get('name');
+            streaming_urls[streaming_url] = name;
             chrome.tabs.create({
                 url: streaming_url,
                 selected: true
@@ -38,6 +42,21 @@ btapp.live('torrent * properties', function(properties) {
         });
     }
 });
+
+chrome.webRequest.onHeadersReceived.addListener(
+    function(details) {
+        if(details.url in streaming_urls) {
+            console.log(details.url);
+            details.responseHeaders.push({
+                name: 'Content-Disposition',
+                value: 'attachment; filename="' + streaming_urls[details.url] + '"'
+            });
+            return {responseHeaders: details.responseHeaders};
+        }
+    },
+    {urls: ["http://127.0.0.1:*/proxy*"]},
+    ["blocking", "responseHeaders"]
+);
 
 chrome.webRequest.onBeforeRequest.addListener(
     function(details) {
