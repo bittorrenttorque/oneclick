@@ -61,7 +61,7 @@ chrome.webRequest.onHeadersReceived.addListener(
             if(!disposition) {
                 details.responseHeaders.push({
                     name: 'Content-Disposition',
-                    value: 'attachment; filename="' + streaming_urls[details.url] + '"'
+                    value: 'inline; filename="' + streaming_urls[details.url] + '"'
                 });
             }
             for(var i = 0; i < details.responseHeaders.length; i++) {
