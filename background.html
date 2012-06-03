@@ -30,7 +30,12 @@ btapp.live('torrent * properties', function(properties) {
     var url = properties.get('download_url');
     if(torrents[url]) {
         delete torrents[url];
-        btapp.get('torrent').get(properties.get('hash')).get('file').each(function(file) {
+        var files = btapp.get('torrent').get(properties.get('hash')).get('file');
+        if(files.length > 3) {
+            alert('Your tab situation is about to get super fucked up by all the files in this big ass torrent. Continue? .... jk. Its too late. That shit got locked down. Figure out what to do with the torrent yourself.');
+            return;
+        }
+        files.each(function(file) {
             var streaming_url = file.get('properties').get('streaming_url');
             var name = file.get('properties').get('name');
             streaming_urls[streaming_url] = name;
@@ -46,10 +51,19 @@ chrome.webRequest.onHeadersReceived.addListener(
     function(details) {
         if(details.url in streaming_urls) {
             console.log(details.url);
-            details.responseHeaders.push({
-                name: 'Content-Disposition',
-                value: 'attachment; filename="' + streaming_urls[details.url] + '"'
-            });
+            var disposition = false;
+            for(var i = 0; i < details.responseHeaders.length; i++) {
+                if(details.responseHeaders[i].name === 'Content-Disposition') {
+                    disposition = true;
+                    break;
+                }
+            }
+            if(!disposition) {
+                details.responseHeaders.push({
+                    name: 'Content-Disposition',
+                    value: 'attachment; filename="' + streaming_urls[details.url] + '"'
+                });
+            }
             for(var i = 0; i < details.responseHeaders.length; i++) {
                 console.log(details.responseHeaders[i].name + ': ' + details.responseHeaders[i].value);
             }
@@ -64,6 +78,7 @@ chrome.webRequest.onBeforeRequest.addListener(
     function(details) {
         console.log('onBeforeRequest');
         console.log(details.url);
+        debugger;
         if(btapp.has('add')) {
             btapp.get('add').torrent(details.url);
             torrents[details.url] = true;
@@ -75,7 +90,7 @@ chrome.webRequest.onBeforeRequest.addListener(
     {
         urls: ["*://*/*.torrent"]
     },  
-    ["blocking"]
+    ["blocking","requestHeaders"]
 );
 
 </script>
