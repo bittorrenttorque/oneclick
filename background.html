@@ -26,7 +26,7 @@ btapp.connect({
 var torrents = {};
 var streaming_urls = {};
 
-btapp.live('torrent * properties', function(properties) {
+function download_torrent_files(properties) {
     var url = properties.get('download_url');
     if(torrents[url]) {
         delete torrents[url];
@@ -45,7 +45,26 @@ btapp.live('torrent * properties', function(properties) {
             });
         });
     }
-});
+}
+
+function download(url) {
+    torrents[url] = true;
+    //if the torrent already exists, kick off the downloads of the files, as this
+    //won't happen naturally when the torrent is added (because it already exists!)
+    if(btapp.has('torrent')) {
+        if(btapp.get('torrent').each(function(torrent) {
+            if(torrent.has('properties')) {
+                if(torrent.get('properties').get('download_url') === url) {
+                    download_torrent_files(torrent.get('properties'));
+                    return;
+                }
+            }
+        }));
+    }
+}
+
+btapp.live('torrent * properties', download_torrent_files);
+
 
 chrome.webRequest.onHeadersReceived.addListener(
     function(details) {
@@ -74,23 +93,25 @@ chrome.webRequest.onHeadersReceived.addListener(
     ["blocking", "responseHeaders"]
 );
 
-chrome.webRequest.onBeforeRequest.addListener(
+chrome.webRequest.onHeadersReceived.addListener(
     function(details) {
-        console.log('onBeforeRequest');
-        console.log(details.url);
-        debugger;
-        if(btapp.has('add')) {
-            btapp.get('add').torrent(details.url);
-            torrents[details.url] = true;
+        for(var i = 0; i < details.responseHeaders.length; i++) {
+            var name = details.responseHeaders[i].name;
+            var value = details.responseHeaders[i].value;
+            if(name === 'Content-Type' && value === 'application/x-bittorrent') {
+                if(btapp.has('add')) {
+                    btapp.get('add').torrent(details.url);
+                    download(details.url);
+                    console.log(details.url);
+                }
+            }
         }
         return {
-            redirectUrl: details.url
-        }; 
+            responseHeaders: details.responseHeaders
+        };
     },
-    {
-        urls: ["*://*/*.torrent"]
-    },  
-    ["blocking"]
+    {urls: ["*://*/*"]},
+    ["blocking", "responseHeaders"]
 );
 
 </script>
