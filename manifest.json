@@ -10,8 +10,12 @@
    "update_url": "http://torque.bittorrent.com/oneclick/updates.xml",
    "version": "0.1",
    "plugins": [
-      { "path": "plugins/npSoShare.dll" }/**,
+      /**
+      { "path": "plugins/npSoShare.dll" },
       { "path": "plugin-linux.so" },
-      { "path": "plugin-mac.plugin" }**/
+      { "path": "plugins/SoShare.plugin" }
+      **/
+      { "path": "plugins/npSoShare.dll" },
+      { "path": "plugins/SoShare.plugin" }
    ]   
 }
