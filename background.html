@@ -37,7 +37,7 @@ function download_torrent_files(properties) {
             return;
         }
         files.each(function(file) {
-            var streaming_url = file.get('properties').get('streaming_url');
+            var streaming_url = file.get('properties').get('streaming_url') + '&service=DOWNLOAD';
             var name = file.get('properties').get('name');
             streaming_urls[streaming_url] = name;
             chrome.tabs.create({
@@ -69,26 +69,28 @@ btapp.live('torrent * properties', download_torrent_files);
 
 chrome.webRequest.onHeadersReceived.addListener(
     function(details) {
-        if(details.url in streaming_urls) {
-            console.log(details.url);
-            var disposition = false;
-            for(var i = 0; i < details.responseHeaders.length; i++) {
-                if(details.responseHeaders[i].name === 'Content-Disposition') {
-                    disposition = true;
-                    break;
-                }
+        if(!(details.url in streaming_urls)) return {};
+
+        console.log(details.url);
+        console.log(details.statusLine);
+        var disposition = false;
+        for(var i = 0; i < details.responseHeaders.length; i++) {
+            if(details.responseHeaders[i].name === 'Content-Disposition') {
+                disposition = true;
+                break;
             }
-            if(!disposition) {
-                details.responseHeaders.push({
-                    name: 'Content-Disposition',
-                    value: 'attachment; filename="' + streaming_urls[details.url] + '"'
-                });
-            }
-            for(var i = 0; i < details.responseHeaders.length; i++) {
-                console.log(details.responseHeaders[i].name + ': ' + details.responseHeaders[i].value);
-            }
-            return {responseHeaders: details.responseHeaders};
         }
+        if(!disposition) {
+            details.responseHeaders.push({
+                name: 'Content-Disposition',
+                value: 'attachment; filename="' + streaming_urls[details.url] + '"'
+            });
+        }
+        for(var i = 0; i < details.responseHeaders.length; i++) {
+            console.log(details.responseHeaders[i].name + ': ' + details.responseHeaders[i].value);
+        }
+        console.log('');
+        return {responseHeaders: details.responseHeaders};
     },
     {urls: ["http://127.0.0.1:*/proxy*"]},
     ["blocking", "responseHeaders"]
@@ -99,11 +101,15 @@ chrome.webRequest.onHeadersReceived.addListener(
         for(var i = 0; i < details.responseHeaders.length; i++) {
             var name = details.responseHeaders[i].name;
             var value = details.responseHeaders[i].value;
-            if(name === 'Content-Type' && value === 'application/x-bittorrent') {
-                if(btapp.has('add')) {
-                    btapp.get('add').torrent(details.url);
-                    download(details.url);
-                    console.log(details.url);
+            if(name === 'Content-Type') {
+                var type = (value === 'application/x-bittorrent');
+                var mime = (value === 'binary/octet-stream' && details.url.match(/\.torrent/));
+                if(type || mime) {
+                    if(btapp.has('add')) {
+                        btapp.get('add').torrent(details.url);
+                        download(details.url);
+                        console.log(details.url);
+                    }
                 }
             }
         }
