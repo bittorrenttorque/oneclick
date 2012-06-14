@@ -9,3 +9,8 @@ Use this when you've changed code in one of the submodules, commited it, and now
 ```
 git submodule -q foreach git pull -q origin master
 ```
+
+#Build/Install (Development)  
+Chrome -> Tools -> Extensions  
+Enable *Developer Mode*  
+Click *Load Unpacked Extension* and select this project directory  

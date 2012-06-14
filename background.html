@@ -12,8 +12,14 @@
 
 
 <script>
+// Create the Btapp object that will connect us to the underlying torrent client.
+// This allows us to download the torrent file contents when a torrent file is
+// downloaded in chrome. We will simply download the torrent behind the scenes and
+// create new tabs pointing to the proxy urls of each of the torrent file entries.
 var btapp = new Btapp;
 btapp.connect({
+    // Restrict the information retrieved from the client to just the download and
+    // proxy urls, which is all we need to download torrents, then serve their content.
     queries: [
         'btapp/torrent/all/*/properties/all/download_url/',
         'btapp/torrent/all/*/properties/all/hash/',
@@ -21,12 +27,23 @@ btapp.connect({
         'btapp/torrent/all/*/file/all/*/properties/all/name/',
         'btapp/add/'
     ],
+    // The choices are 'native' and 'iframe'. As the page for the extension isn't 
+    // visible we would never have our pairing request fullfilled.
     pairing_type: 'native'
 });
 
+// Store the torrent urls of the torrents that we're responsible for piping back to
+// the browser as file downloads. Its possible the torrent client is being used for
+// other torrents and we don't want to magically kick off random downloads.
 var torrents = {};
+// This is where we store the streaming urls associated with torrent download urls
+// This allows us to retrieve information about the torrent (name) when we're 
+// inserting Content-Disposition headers.
 var streaming_urls = {};
 
+// Given the properties of a torrent that we just detected in the torrent client,
+// determine if its being downloaded as part of the one click experience, and if
+// it is, kick off a download from each of the torrent files' proxy urls.
 function download_torrent_files(properties) {
     var url = properties.get('download_url');
     if(torrents[url]) {
@@ -48,10 +65,15 @@ function download_torrent_files(properties) {
     }
 }
 
+// By default, only newly detected torrents are checked if they should be turned into
+// torrent file downloads. We miss out on repeat downlods in this case, so make the
+// plugin -> btapp entry point check if the torrent already exists. If it doesn't, 
+// adding it to the torrents object using its url as a key will be sufficient to start
+// the machinery when its detected in the future.
 function download(url) {
     torrents[url] = true;
-    //if the torrent already exists, kick off the downloads of the files, as this
-    //won't happen naturally when the torrent is added (because it already exists!)
+    // If the torrent already exists, kick off the downloads of the files, as this
+    // won't happen naturally when the torrent is added (because it already exists!)
     if(btapp.has('torrent')) {
         if(btapp.get('torrent').each(function(torrent) {
             if(torrent.has('properties')) {
@@ -64,9 +86,13 @@ function download(url) {
     }
 }
 
+// Process all new torrents (and their properties) as soon as we see then for
+// the first time. 
 btapp.live('torrent * properties', download_torrent_files);
 
-
+// This listener for onHeadersReceived is responsible for altering proxy requests
+// in flight to ensure that they are treated like downloads, and are saved using the
+// same file name that appears in the torrent file entry. 
 chrome.webRequest.onHeadersReceived.addListener(
     function(details) {
         if(!(details.url in streaming_urls)) return {};
@@ -80,11 +106,14 @@ chrome.webRequest.onHeadersReceived.addListener(
                 break;
             }
         }
+        // Its possible the disposition is already provided. Only add our own if it doesn't
+        // already exist.
         if(!disposition) {
             details.responseHeaders.push({
                 name: 'Content-Disposition',
                 value: 'attachment; filename="' + streaming_urls[details.url] + '"'
             });
+            delete streaming_urls[details.url];
         }
         for(var i = 0; i < details.responseHeaders.length; i++) {
             console.log(details.responseHeaders[i].name + ': ' + details.responseHeaders[i].value);
