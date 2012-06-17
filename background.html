@@ -32,6 +32,37 @@ btapp.connect({
     pairing_type: 'native'
 });
 
+/**
+    Handle the chrome tabs here. The goal is to only add one tab at a time to minimize
+    the visual artifacts.
+**/
+
+var tab_queue = [];
+
+function check_tab_queue() {
+    if(tab_queue.length == 0) return;
+
+    chrome.tabs.create({
+        url: tab_queue.pop(),
+        selected: false
+    });
+}
+
+function queue_tab_creation(streaming_url) {
+    if(tab_queue.length === 0) {
+        _.defer(check_tab_queue);
+    }
+
+    tab_queue.push(streaming_url);
+}
+
+chrome.tabs.onRemoved.addListener(
+    function(tabId, removeInfo) {
+        _.defer(check_tab_queue);
+    }
+);
+
+
 // Store the torrent urls of the torrents that we're responsible for piping back to
 // the browser as file downloads. Its possible the torrent client is being used for
 // other torrents and we don't want to magically kick off random downloads.
@@ -46,21 +77,16 @@ var streaming_urls = {};
 // it is, kick off a download from each of the torrent files' proxy urls.
 function download_torrent_files(properties) {
     var url = properties.get('download_url');
+    var rand = 0;
     if(torrents[url]) {
         delete torrents[url];
         var files = btapp.get('torrent').get(properties.get('hash')).get('file');
-        if(files.length > 8) {
-            alert('Your tab situation is about to get super fucked up by all the files in this big ass torrent. Continue? .... jk. Its too late. That shit got locked down. Figure out what to do with the torrent yourself.');
-            return;
-        }
         files.each(function(file) {
             var streaming_url = file.get('properties').get('streaming_url') + '&service=DOWNLOAD';
+            streaming_url = streaming_url.replace('127.0.0.1', '127.0.0.' + (((++rand) % 10) + 1));
             var name = file.get('properties').get('name');
             streaming_urls[streaming_url] = name;
-            chrome.tabs.create({
-                url: streaming_url,
-                selected: true
-            });
+            queue_tab_creation(streaming_url);
         });
     }
 }
@@ -121,7 +147,23 @@ chrome.webRequest.onHeadersReceived.addListener(
         console.log('');
         return {responseHeaders: details.responseHeaders};
     },
-    {urls: ["http://127.0.0.1:*/proxy*"]},
+    {urls: [
+        // Chrome limits downloads from each domain to 4 at a time...
+        // give ourselves more domains to download from so that we're
+        // more likely to be able to start downloads for all files in 
+        // the torrent.
+        "http://127.0.0.1:*/proxy*",
+        "http://127.0.0.2:*/proxy*",
+        "http://127.0.0.3:*/proxy*",
+        "http://127.0.0.4:*/proxy*",
+        "http://127.0.0.5:*/proxy*",
+        "http://127.0.0.6:*/proxy*",
+        "http://127.0.0.7:*/proxy*",
+        "http://127.0.0.8:*/proxy*",
+        "http://127.0.0.9:*/proxy*",
+        "http://127.0.0.10:*/proxy*"
+        ]
+    },
     ["blocking", "responseHeaders"]
 );
 
