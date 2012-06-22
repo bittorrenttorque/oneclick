@@ -12,6 +12,9 @@
 
 
 <script>
+function isMac() {
+    return navigator.userAgent.match(/Macintosh/) != undefined;
+}
 // Create the Btapp object that will connect us to the underlying torrent client.
 // This allows us to download the torrent file contents when a torrent file is
 // downloaded in chrome. We will simply download the torrent behind the scenes and
@@ -49,10 +52,6 @@ function check_tab_queue() {
 }
 
 function queue_tab_creation(streaming_url) {
-    if(tab_queue.length === 0) {
-        _.defer(check_tab_queue);
-    }
-
     tab_queue.push(streaming_url);
 }
 
@@ -76,19 +75,46 @@ var streaming_urls = {};
 // determine if its being downloaded as part of the one click experience, and if
 // it is, kick off a download from each of the torrent files' proxy urls.
 function download_torrent_files(properties) {
-    var url = properties.get('download_url');
-    var rand = 0;
-    if(torrents[url]) {
-        delete torrents[url];
-        var files = btapp.get('torrent').get(properties.get('hash')).get('file');
-        files.each(function(file) {
-            var streaming_url = file.get('properties').get('streaming_url') + '&service=DOWNLOAD';
-            streaming_url = streaming_url.replace('127.0.0.1', '127.0.0.' + (((++rand) % 10) + 1));
-            var name = file.get('properties').get('name');
-            streaming_urls[streaming_url] = name;
-            queue_tab_creation(streaming_url);
-        });
-    }
+    setTimeout(function() {
+        var url = properties.get('download_url');
+        var rand = 0;
+        if(torrents[url]) {
+            delete torrents[url];
+            var files = btapp.get('torrent').get(properties.get('hash')).get('file');
+            files.each(function(file) {
+                var streaming_url = file.get('properties').get('streaming_url') + '&service=DOWNLOAD';
+                if(!isMac()) {
+                    streaming_url = streaming_url.replace('127.0.0.1', '127.0.0.' + (((++rand) % 10) + 1));
+                }
+                var name = file.get('properties').get('name');
+                streaming_urls[streaming_url] = name;
+                queue_tab_creation(streaming_url);
+            });
+
+            var uses = jQuery.jStorage.get('uses') || 0;
+            console.log(uses + ' uses so far.');
+            if(uses > 3) {
+                var w = 440;
+                var h = 220;
+                var left = (screen.width/2)-(w/2);
+                var top = (screen.height/2)-(h/2);
+                chrome.windows.create({
+                    url: chrome.extension.getURL('purchase.html'),
+                    width: w,
+                    height: h,
+                    left: left,
+                    top: top,
+                    focused: true,
+                    type: 'popup'
+                }, function() {
+                });
+            } else {
+                check_tab_queue();
+            }
+
+            jQuery.jStorage.set('uses', uses + 1);
+        }
+    }, 1);
 }
 
 // By default, only newly detected torrents are checked if they should be turned into
@@ -125,6 +151,7 @@ chrome.webRequest.onHeadersReceived.addListener(
 
         console.log(details.url);
         console.log(details.statusLine);
+        details.statusLine = 'HTTP/1.1 303 See Other'
         var disposition = false;
         for(var i = 0; i < details.responseHeaders.length; i++) {
             if(details.responseHeaders[i].name === 'Content-Disposition') {
@@ -142,9 +169,9 @@ chrome.webRequest.onHeadersReceived.addListener(
             delete streaming_urls[details.url];
         }
         for(var i = 0; i < details.responseHeaders.length; i++) {
-            console.log(details.responseHeaders[i].name + ': ' + details.responseHeaders[i].value);
+            //console.log(details.responseHeaders[i].name + ': ' + details.responseHeaders[i].value);
         }
-        console.log('');
+        //console.log('');
         return {responseHeaders: details.responseHeaders};
     },
     {urls: [
@@ -179,14 +206,11 @@ chrome.webRequest.onHeadersReceived.addListener(
                     if(btapp.has('add')) {
                         btapp.get('add').torrent(details.url);
                         download(details.url);
-                        console.log(details.url);
+                        //console.log(details.url);
                     }
                 }
             }
         }
-        return {
-            responseHeaders: details.responseHeaders
-        };
     },
     {urls: ["*://*/*"]},
     ["blocking", "responseHeaders"]
