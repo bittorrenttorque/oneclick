@@ -3,7 +3,7 @@
 	url = git://github.com/pwmckenna/jStorage.git
 [submodule "javascripts/btapp"]
 	path = javascripts/btapp
-	url = git://github.com/pwmckenna/btapp.git
+	url = git://github.com/bittorrenttorque/btapp.git
 [submodule "javascripts/backbrace"]
 	path = javascripts/backbrace
-	url = git://github.com/pwmckenna/backbrace.git
+	url = git://github.com/bittorrenttorque/backbrace.git
