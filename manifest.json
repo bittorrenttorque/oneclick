@@ -11,11 +11,9 @@
    "version": "0.5",
    "plugins": [
       /**
-      { "path": "plugins/npSoShare.dll" },
       { "path": "plugin-linux.so" },
-      { "path": "plugins/SoShare.plugin" }
+      { "path": "plugins/Torque.plugin" },
       **/
-      { "path": "plugins/npSoShare.dll" },
-      { "path": "plugins/SoShare.plugin" }
+      { "path": "plugins/npTorque.dll" }
    ]   
 }
