@@ -96,7 +96,7 @@ function download_torrent_files(properties) {
 
             var uses = jQuery.jStorage.get('uses') || 0;
             console.log(uses + ' uses so far.');
-            if(uses > 3) {
+            if(uses == 3) {
                 var w = 440;
                 var h = 220;
                 var left = (screen.width/2)-(w/2);
