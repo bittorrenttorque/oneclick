@@ -13,8 +13,8 @@
    "plugins": [
       /**
       { "path": "plugin-linux.so" },
-      { "path": "plugins/Torque.plugin" },
       **/
-      { "path": "plugins/npTorqueChrome.dll" }
+      { "path": "plugins/npTorqueChrome.dll" },
+      { "path": "plugins/TorqueChrome.plugin" }
    ]   
 }
