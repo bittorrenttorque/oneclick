@@ -9,6 +9,7 @@
    "permissions": ["tabs", "plugins", "webRequest", "webRequestBlocking", "http://*/*"],
    "update_url": "http://torque.bittorrent.com/oneclick/oneclick.xml",
    "version": "0.6",
+   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
    "plugins": [
       /**
       { "path": "plugin-linux.so" },
