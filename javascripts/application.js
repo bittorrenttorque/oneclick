@@ -19,10 +19,7 @@ jQuery(function() {
         ],
         // If we use the same mime type here as is made available by the basic plugin,
         // web apps would lose access to it...so we use our custom version. Chrome bug?
-        mime_type: 'application/x-bittorrent-torquechrome',
-        // The choices are 'native' and 'iframe'. As the page for the extension isn't 
-        // visible we would never have our pairing request fullfilled.
-        pairing_type: 'native'
+        mime_type: 'application/x-bittorrent-torquechrome'
     });
 
     /**
