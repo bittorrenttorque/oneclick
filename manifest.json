@@ -8,7 +8,7 @@
    "name": "OneClick - Torrent Easier",
    "permissions": ["tabs", "plugins", "webRequest", "webRequestBlocking", "http://*/*"],
    "update_url": "http://torque.bittorrent.com/oneclick/oneclick.xml",
-   "version": "0.7",
+   "version": "0.8",
    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
    "plugins": [
       /**
