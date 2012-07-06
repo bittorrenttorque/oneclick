@@ -6,9 +6,9 @@
    },
    "minimum_chrome_version": "19.0.1057.0",
    "name": "OneClick - Torrent Easier",
-   "permissions": ["tabs", "plugins", "webRequest", "webRequestBlocking", "http://*/*"],
+   "permissions": ["tabs", "webRequest", "webRequestBlocking", "http://*/*"],
    "update_url": "http://torque.bittorrent.com/oneclick/oneclick.xml",
-   "version": "0.8",
+   "version": "0.9",
    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
    "plugins": [
       /**
