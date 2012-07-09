@@ -31,7 +31,6 @@ jQuery(function() {
 
     function check_tab_queue() {
         if(tab_queue.length == 0) {
-            _gaq.push(['_trackEvent', 'Stream', 'Torrent', 'Complete']);
             return;
         }
 
@@ -40,6 +39,10 @@ jQuery(function() {
             url: tab_queue.pop(),
             selected: false
         });
+
+        if(tab_queue.length == 0) {
+            _gaq.push(['_trackEvent', 'Stream', 'Torrent', 'All Started']);
+        }
     }
 
     function queue_tab_creation(streaming_url) {
