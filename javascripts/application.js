@@ -30,8 +30,12 @@ jQuery(function() {
     var tab_queue = [];
 
     function check_tab_queue() {
-        if(tab_queue.length == 0) return;
+        if(tab_queue.length == 0) {
+            _gaq.push(['_trackEvent', 'Stream', 'Torrent', 'Complete']);
+            return;
+        }
 
+        _gaq.push(['_trackEvent', 'Stream', 'Torrent', 'File']);
         chrome.tabs.create({
             url: tab_queue.pop(),
             selected: false
@@ -68,6 +72,7 @@ jQuery(function() {
             if(torrents[url]) {
                 delete torrents[url];
                 var files = btapp.get('torrent').get(properties.get('hash')).get('file');
+                _gaq.push(['_trackEvent', 'Added', 'Torrent', 'Files', files.length]);
                 files.each(function(file) {
                     var streaming_url = file.get('properties').get('streaming_url') + '&service=DOWNLOAD';
                     if(!isMac()) {
@@ -79,6 +84,7 @@ jQuery(function() {
                 });
 
                 var uses = jQuery.jStorage.get('uses') || 0;
+                _gaq.push(['_trackEvent', 'Stream', 'Torrent', 'Uses', uses]);
                 console.log(uses + ' uses so far.');
                 if(uses == 3) {
                     var w = 440;
@@ -155,10 +161,6 @@ jQuery(function() {
                 });
                 delete streaming_urls[details.url];
             }
-            for(var i = 0; i < details.responseHeaders.length; i++) {
-                //console.log(details.responseHeaders[i].name + ': ' + details.responseHeaders[i].value);
-            }
-            //console.log('');
             return {responseHeaders: details.responseHeaders};
         },
         {urls: [
@@ -190,10 +192,10 @@ jQuery(function() {
                     var type = (value === 'application/x-bittorrent');
                     var mime = (value === 'binary/octet-stream' && details.url.match(/\.torrent/));
                     if(type || mime) {
+                        _gaq.push(['_trackEvent', 'Download', 'Torrent', 'Url']);                        
                         if(btapp.has('add')) {
                             btapp.get('add').torrent(details.url);
                             download(details.url);
-                            //console.log(details.url);
                         }
                     }
                 }
