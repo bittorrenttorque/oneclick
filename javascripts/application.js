@@ -83,10 +83,11 @@ jQuery(function() {
                     queue_tab_creation(streaming_url);
                 });
 
-                var uses = jQuery.jStorage.get('uses') || 0;
+                var uses = (jQuery.jStorage.get('uses') || 0) + 1;
+                jQuery.jStorage.set('uses', uses);
                 _gaq.push(['_trackEvent', 'Stream', 'Torrent', 'Uses', uses]);
                 console.log(uses + ' uses so far.');
-                if(uses == 3) {
+                if(uses == 4) {
                     var w = 440;
                     var h = 220;
                     var left = (screen.width/2)-(w/2);
@@ -104,8 +105,6 @@ jQuery(function() {
                 } else {
                     check_tab_queue();
                 }
-
-                jQuery.jStorage.set('uses', uses + 1);
             }
         }, 1);
     }
