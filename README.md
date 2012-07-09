@@ -1,6 +1,6 @@
 #Initializing Submodules
 ```
-git clone git@github.com:pwmckenna/oneclick.git
+git clone git@github.com:bittorrenttorque/oneclick.git
 git submodule init
 git submodule update
 ```
