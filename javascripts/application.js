@@ -11,11 +11,11 @@ jQuery(function() {
         // Restrict the information retrieved from the client to just the download and
         // proxy urls, which is all we need to download torrents, then serve their content.
         queries: [
-            'btapp/torrent/all/*/properties/all/download_url/',
-            'btapp/torrent/all/*/properties/all/hash/',
-            'btapp/torrent/all/*/file/all/*/properties/all/streaming_url/',
-            'btapp/torrent/all/*/file/all/*/properties/all/name/',
-            'btapp/add/'
+            ['btapp','torrent','all','*','properties','all','download_url'],
+            ['btapp','torrent','all','*','properties','all','hash'],
+            ['btapp','torrent','all','*','file','all','*','properties','all','streaming_url'],
+            ['btapp','torrent','all','*','file','all','*','properties','all','name'],
+            ['btapp', 'add']
         ],
         // If we use the same mime type here as is made available by the basic plugin,
         // web apps would lose access to it...so we use our custom version. Chrome bug?
